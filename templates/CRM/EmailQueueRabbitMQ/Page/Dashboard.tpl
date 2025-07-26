@@ -1,7 +1,5 @@
 <div class="rabbitmq-metrics-dashboard">
   <div class="crm-container">
-    <h1>{$pageTitle}</h1>
-
     {* Time Range Controls *}
     <div class="metrics-controls">
       {*
@@ -31,6 +29,14 @@
       <div class="control-group">
         <button id="pauseRefresh" class="btn btn-secondary">{ts}Pause{/ts}</button>
         <button id="refreshNow" class="btn btn-primary">{ts}Refresh Now{/ts}</button>
+      </div>
+      <span class="countdown-separator"> | </span>
+      {ts}Next refresh in:{/ts} <span id="refreshCountdown" class="countdown-timer">--</span>
+      {* Last Update Info *}
+      <div class="last-update">
+        <small>
+          {ts}Last updated:{/ts} <span id="lastUpdate">{$currentTime}</span>
+        </small>
       </div>
     </div>
 
@@ -191,11 +197,6 @@
           </tbody>
         </table>
       </div>
-    </div>
-
-    {* Last Update Info *}
-    <div class="last-update">
-      <small>{ts}Last updated:{/ts} <span id="lastUpdate">{$currentTime}</span></small>
     </div>
   </div>
 </div>

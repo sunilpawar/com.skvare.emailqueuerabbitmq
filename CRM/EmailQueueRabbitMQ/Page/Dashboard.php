@@ -23,7 +23,6 @@ class CRM_EmailQueueRabbitMQ_Page_Dashboard extends CRM_Core_Page {
     $resources->addScriptFile('com.skvare.emailqueuerabbitmq', 'js/metrics-dashboard.js', 100, 'page-footer');
 
     // Set template variables
-    $this->assign('pageTitle', ts('RabbitMQ Metrics Dashboard'));
     $this->assign('currentTime', date('Y-m-d H:i:s'));
 
     // Get initial metrics data

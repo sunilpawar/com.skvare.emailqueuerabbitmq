@@ -4,9 +4,12 @@
   let dashboard = {
     charts: {},
     refreshInterval: null,
+    countdownInterval: null,
     isPaused: false,
     currentRefreshRate: 10,
     currentTimeRange: '1h',
+    countdownSeconds: 0,
+    lastRefreshTime: 0,
     historicalData: {
       messageFlow: [],
       queueDepth: [],
@@ -247,6 +250,8 @@
     loadInitialData: function() {
       if (window.rabbitmqMetrics && window.rabbitmqMetrics.initialData) {
         this.updateDashboard(window.rabbitmqMetrics.initialData);
+        // Initialize countdown display
+        this.resetCountdown();
       }
     },
 
@@ -259,6 +264,10 @@
         dataType: 'json',
         success: function(data) {
           self.updateDashboard(data);
+          // Reset countdown after successful refresh
+          if (!self.isPaused) {
+            self.resetCountdown();
+          }
         },
         error: function(xhr, status, error) {
           console.error('Failed to fetch metrics:', error);
@@ -478,6 +487,78 @@
 
     updateTimestamp: function() {
       $('#lastUpdate').text(new Date().toLocaleTimeString());
+      this.resetCountdown();
+    },
+
+    resetCountdown: function() {
+      this.countdownSeconds = this.currentRefreshRate;
+      this.lastRefreshTime = Date.now();
+      this.updateCountdownDisplay();
+    },
+
+    startCountdown: function() {
+      const self = this;
+      this.stopCountdown();
+      
+      if (!this.isPaused) {
+        this.countdownInterval = setInterval(function() {
+          self.updateCountdown();
+        }, 1000);
+      }
+    },
+
+    stopCountdown: function() {
+      if (this.countdownInterval) {
+        clearInterval(this.countdownInterval);
+        this.countdownInterval = null;
+      }
+    },
+
+    updateCountdown: function() {
+      if (this.isPaused) {
+        this.updateCountdownDisplay('PAUSED');
+        return;
+      }
+
+      const elapsed = Math.floor((Date.now() - this.lastRefreshTime) / 1000);
+      this.countdownSeconds = Math.max(0, this.currentRefreshRate - elapsed);
+      
+      this.updateCountdownDisplay();
+      
+      if (this.countdownSeconds <= 0) {
+        this.resetCountdown();
+      }
+    },
+
+    updateCountdownDisplay: function(overrideText) {
+      const countdownElement = $('#refreshCountdown');
+      
+      if (overrideText) {
+        countdownElement.text(overrideText)
+          .removeClass('warning')
+          .addClass('paused');
+        return;
+      }
+      
+      const minutes = Math.floor(this.countdownSeconds / 60);
+      const seconds = this.countdownSeconds % 60;
+      let displayText = '';
+      
+      if (minutes > 0) {
+        displayText = `${minutes}m ${seconds}s`;
+      } else {
+        displayText = `${seconds}s`;
+      }
+      
+      countdownElement.text(displayText)
+        .removeClass('paused');
+      
+      // Add warning class when less than 10 seconds remaining
+      if (this.countdownSeconds <= 10 && this.countdownSeconds > 0) {
+        countdownElement.addClass('warning');
+      } else {
+        countdownElement.removeClass('warning');
+      }
     },
 
     startAutoRefresh: function() {
@@ -488,6 +569,10 @@
         this.refreshInterval = setInterval(function() {
           self.refreshData();
         }, this.currentRefreshRate * 1000);
+        
+        // Start countdown timer
+        this.resetCountdown();
+        this.startCountdown();
       }
     },
 
@@ -496,6 +581,7 @@
         clearInterval(this.refreshInterval);
         this.refreshInterval = null;
       }
+      this.stopCountdown();
     },
 
     restartAutoRefresh: function() {
@@ -510,6 +596,7 @@
         button.text(window.rabbitmqMetrics.translations.running || 'Resume')
               .removeClass('btn-secondary').addClass('btn-secondary paused');
         this.stopAutoRefresh();
+        this.updateCountdownDisplay('PAUSED');
       } else {
         button.text(window.rabbitmqMetrics.translations.paused || 'Pause')
               .removeClass('paused');

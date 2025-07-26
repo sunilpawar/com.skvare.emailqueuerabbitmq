@@ -28,7 +28,7 @@
 
 .control-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 5px;
 }
 
@@ -258,6 +258,30 @@
   margin-top: 20px;
 }
 
+.countdown-separator {
+  margin: 0 10px;
+  color: #bdc3c7;
+}
+
+.countdown-timer {
+  font-weight: 600;
+  color: #3498db;
+  background: rgba(52, 152, 219, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.countdown-timer.paused {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.countdown-timer.warning {
+  color: #f39c12;
+  background: rgba(243, 156, 18, 0.1);
+}
+
 /* Loading States */
 .loading {
   opacity: 0.6;
@@ -300,16 +324,16 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .control-group {
     margin-bottom: 10px;
   }
-  
+
   .metrics-grid,
   .charts-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .chart-container canvas {
     height: 250px !important;
   }
@@ -319,7 +343,7 @@
   .rabbitmq-metrics-dashboard {
     padding: 10px;
   }
-  
+
   .metric-card,
   .chart-container,
   .node-details,
