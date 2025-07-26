@@ -41,6 +41,14 @@ function emailqueuerabbitmq_civicrm_navigationMenu(&$menu) {
     'url' => 'civicrm/admin/emailqueue/rabbitmq/settings',
     'permission' => 'administer CiviCRM',
   ]);
+  _emailqueuerabbitmq_civix_insert_navigation_menu($menu, 'Mailings', [
+    'label' => E::ts('RabbitMQ Metrics Dashboard'),
+    'name' => 'emailqueue_rabbitmq_dashboard',
+    'url' => 'civicrm/emailqueue/rabbitmq-dashboard',
+    'permission' => 'access CiviCRM',
+    'operator' => 'OR',
+    'separator' => 1,
+  ]);
 }
 
 /**
