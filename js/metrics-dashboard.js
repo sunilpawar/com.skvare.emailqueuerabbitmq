@@ -328,6 +328,12 @@
     },
 
     updateCharts: function(data) {
+      // If charts are not initialized, skip chart updates
+      if (!this.charts.messageFlow) {
+        console.log('Charts not initialized, skipping chart updates');
+        return;
+      }
+
       const timestamp = new Date(data.timestamp || Date.now());
       const overview = data.overview || {};
       const messageStats = overview.message_stats || {};
@@ -552,9 +558,33 @@
     }
   };
 
+  // Function to check if Chart.js is loaded and initialize
+  let initializationAttempts = 0;
+  const maxAttempts = 50; // Maximum 5 seconds wait time
+
+  function initializeDashboard() {
+    initializationAttempts++;
+
+    if (typeof Chart !== 'undefined') {
+      dashboard.init();
+    } else if (initializationAttempts < maxAttempts) {
+      // Chart.js not loaded yet, wait a bit and try again
+      setTimeout(initializeDashboard, 100);
+    } else {
+      // Timeout reached, show error message
+      console.error('Chart.js failed to load after 5 seconds');
+      dashboard.showError('Chart.js library failed to load. Please check your internet connection and refresh the page.');
+
+      // Initialize dashboard without charts
+      dashboard.setupEventHandlers();
+      dashboard.loadInitialData();
+      dashboard.startAutoRefresh();
+    }
+  }
+
   // Initialize dashboard when DOM is ready
   $(document).ready(function() {
-    dashboard.init();
+    initializeDashboard();
   });
 
 })(CRM.$);

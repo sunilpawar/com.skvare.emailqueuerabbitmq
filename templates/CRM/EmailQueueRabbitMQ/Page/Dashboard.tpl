@@ -1,7 +1,10 @@
 <div class="rabbitmq-metrics-dashboard">
   <div class="crm-container">
+    <h1>{$pageTitle}</h1>
+
     {* Time Range Controls *}
     <div class="metrics-controls">
+      {*
       <div class="control-group">
         <label for="timeRange">{ts}Time Range:{/ts}</label>
         <select id="timeRange" class="form-control">
@@ -13,7 +16,7 @@
           <option value="7d">{ts}Last 7 days{/ts}</option>
         </select>
       </div>
-
+      *}
       <div class="control-group">
         <label for="refreshRate">{ts}Refresh Rate:{/ts}</label>
         <select id="refreshRate" class="form-control">
@@ -196,13 +199,15 @@
     </div>
   </div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/4.1.0/cdn.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-date-fns/3.0.0/chartjs-adapter-date-fns.min.js"></script>
 <script type="text/javascript">
   {literal}
   // Pass initial data to JavaScript
   window.rabbitmqMetrics = {
     initialData: {/literal}{$initialMetrics}{literal},
-    ajaxUrl: '{crmURL p="civicrm/emailqueue/rabbitmq-dashboard" q="action=getMetrics"}',
+    ajaxUrl: '{/literal}{crmURL p="civicrm/emailqueue/rabbitmq-dashboard" q="refresh=getMetrics"}'{literal},
     translations: {
       loading: 'Loading...',
       error: 'Error loading data',
@@ -210,8 +215,8 @@
       warning: 'Warning',
       critical: 'Critical',
       offline: 'Offline',
-      paused: 'Paused',
-      running: 'Running'
+      paused: 'Pause',
+      running: 'Run'
     }
   };
   {/literal}

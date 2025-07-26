@@ -6,29 +6,21 @@ require E::path('vendor/autoload.php');
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class CRM_EmailQueueRabbitMQ_Page_Dashboard extends CRM_Core_Page {
-  /**
-   * @var AMQPStreamConnection
-   */
-  private $connection;
-  private $channel;
-  private $emailQueue;
-  private $emailSender;
-  private $config;
+
   public function run() {
     // Check if this is an AJAX request for metrics data
-    $action = CRM_Utils_Request::retrieve('action', 'String');
+    $action = CRM_Utils_Request::retrieve('refresh', 'String');
     if ($action === 'getMetrics') {
       $this->ajaxGetMetrics();
-      return;
     }
 
     // Include Chart.js and custom metrics JavaScript
-    CRM_Core_Resources::singleton()
-      ->addStyleFile('com.skvare.emailqueuerabbitmq', 'css/metrics-dashboard.css')
-      ->addScriptFile('com.skvare.emailqueuerabbitmq', 'js/metrics-dashboard.js')
-      ->addScriptUrl('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js')
-      ->addScriptUrl('https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js')
-      ->addScriptUrl('https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js');
+    $resources = CRM_Core_Resources::singleton();
+    // Add CSS
+    $resources->addStyleFile('com.skvare.emailqueuerabbitmq', 'css/metrics-dashboard.css');
+
+    // Load custom JS after Chart.js libraries are loaded
+    $resources->addScriptFile('com.skvare.emailqueuerabbitmq', 'js/metrics-dashboard.js', 100, 'page-footer');
 
     // Set template variables
     $this->assign('pageTitle', ts('RabbitMQ Metrics Dashboard'));
@@ -42,8 +34,8 @@ class CRM_EmailQueueRabbitMQ_Page_Dashboard extends CRM_Core_Page {
   }
 
   public function ajaxGetMetrics() {
-    header('Content-Type: application/json');
     $metrics = $this->getRabbitMQMetrics();
+    header('Content-Type: application/json');
     echo json_encode($metrics);
     CRM_Utils_System::civiExit();
   }
@@ -69,7 +61,8 @@ class CRM_EmailQueueRabbitMQ_Page_Dashboard extends CRM_Core_Page {
       ];
 
       return $metrics;
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       return ['error' => 'Failed to fetch metrics: ' . $e->getMessage()];
     }
   }
@@ -79,25 +72,15 @@ class CRM_EmailQueueRabbitMQ_Page_Dashboard extends CRM_Core_Page {
       'http' => [
         'header' => "Authorization: Basic " . base64_encode($settings['user'] . ':' . $settings['pass']),
         'timeout' => 10,
-      ]
+      ],
     ]);
 
-    $result = @file_get_contents($url, false, $context);
+    $result = @file_get_contents($url, FALSE, $context);
     if ($result === FALSE) {
-      return null;
+      return NULL;
     }
 
-    return json_decode($result, true);
-  }
-
-  private function getRabbitMQSettings() {
-    return [
-      'host' => Civi::settings()->get('skvare_emailqueue_rabbitmq_host') ?: 'localhost',
-      'port' => Civi::settings()->get('skvare_emailqueue_rabbitmq_port') ?: '5672',
-      'user' => Civi::settings()->get('skvare_emailqueue_rabbitmq_user') ?: 'guest',
-      'pass' => Civi::settings()->get('skvare_emailqueue_rabbitmq_pass') ?: 'guest',
-      'vhost' => Civi::settings()->get('skvare_emailqueue_rabbitmq_vhost') ?: '/',
-    ];
+    return json_decode($result, TRUE);
   }
 
 }
