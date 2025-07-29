@@ -11,6 +11,11 @@ The **Skvare Email Queue RabbitMQ Extension** (`com.skvare.emailqueuerabbitmq`) 
 - **Connection testing capabilities**
 - **Performance monitoring**
 
+## Flow Chart
+
+![Screenshot](/images/flow_chart.png)
+
+
 ## Directory Structure
 
 ```

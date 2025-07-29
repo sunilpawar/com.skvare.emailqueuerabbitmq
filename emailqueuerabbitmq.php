@@ -35,7 +35,7 @@ function emailqueuerabbitmq_civicrm_enable(): void {
  * Implements hook_civicrm_navigationMenu().
  */
 function emailqueuerabbitmq_civicrm_navigationMenu(&$menu) {
-  _emailqueuerabbitmq_civix_insert_navigation_menu($menu, 'Administer/System Settings', [
+  _emailqueuerabbitmq_civix_insert_navigation_menu($menu, 'Administer/CiviMail', [
     'label' => E::ts('Email Queue RabbitMQ Settings'),
     'name' => 'emailqueue_rabbitmq_settings',
     'url' => 'civicrm/admin/emailqueue/rabbitmq/settings',
