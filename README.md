@@ -15,6 +15,10 @@ The **Skvare Email Queue RabbitMQ Extension** (`com.skvare.emailqueuerabbitmq`) 
 
 ![Screenshot](/images/flow_chart.png)
 
+## Settings
+
+![Screenshot](/images/rabbitmq_setting.png)
+
 
 ## Directory Structure
 
